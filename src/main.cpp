@@ -13,6 +13,8 @@
 #include <iostream>
 
 #include "curses_utils.h"
+#include "game/game_objects.h"
+
 
 int main(int argc, char *argv[]) {
     try {
