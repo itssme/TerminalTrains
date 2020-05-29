@@ -6,21 +6,38 @@
 
 #include "game/game_objects.h"
 
+game::gameobjects::Line::Line(int pos_height, int pos_width) : GameObject(pos_height, pos_width, 0, 0) {
+    color = COLOR_PAIR(RED);
+}
 
-void gameobjects::Line::tick() {
+void game::gameobjects::Line::tick() {
+    for (auto & train : trains) {
+        if (train.drive_line()) {
+            arrived_train = &train;
+        }
+    }
+}
+
+void game::gameobjects::Line::draw(WINDOW* window) {
+    wattron(window, color);
+    for (auto & point : line) {
+        mvwaddch(window, std::get<0>(point), std::get<1>(point), ' ');
+    }
+    wattroff(window, color);
+
+    for (auto & train : trains) {
+        train.draw(window);
+    }
+}
+
+void game::gameobjects::Line::add_point(int pos_height, int pos_width) {
+    this->line.emplace_back(std::make_tuple(pos_height, pos_width));
+}
+
+void game::gameobjects::Line::add_train(gameobjects::Train train) {
 
 }
 
-void gameobjects::Line::draw(WINDOW *window) {
-
+game::gameobjects::Train *game::gameobjects::Line::arrived() {
+    return arrived_train;
 }
-
-void gameobjects::Line::add_point(int pos_height, int pos_width) {
-
-}
-
-void gameobjects::Line::add_train(gameobjects::Train train) {
-
-}
-
-gameobjects::Line::Line(int pos_height, int pos_width) : GameObject(pos_height, pos_width, 0, 0) {}

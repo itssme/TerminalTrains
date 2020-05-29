@@ -13,10 +13,10 @@
 #include <iostream>
 
 #include "curses_utils.h"
-#include "game/game_objects.h"
+#include "game/game.h"
 
 
-int main(int argc, char *argv[]) {
+int main() {
     try {
         auto logger = spdlog::basic_logger_mt("file_logger", "log.log");
         spdlog::set_default_logger(logger);
@@ -30,11 +30,35 @@ int main(int argc, char *argv[]) {
     cbreak();
     noecho();
     curs_set(0);
+    start_color();
     refresh();
 
     bool in_menu{true};
     WINDOW* main_window = create_newwin(LINES, COLS, 0, 0);
 
+    game::colors::init_colors();
+
+    game::gameobjects::Line line(10, 10);
+
+    line.add_point(11, 10);
+    line.add_point(12, 10);
+    line.add_point(13, 10);
+    line.add_point(14, 10);
+    line.add_point(14, 11);
+    line.add_point(14, 12);
+    line.add_point(14, 13);
+    line.add_point(14, 14);
+
+    line.draw(main_window);
+
+    wrefresh(main_window);
+
+    int ch;
+    while ((ch = getch()) != 10) {
+
+    }
+
+    /*
     while (in_menu) {
         int main_choice{0};
 
@@ -57,6 +81,7 @@ int main(int argc, char *argv[]) {
         }
 
     }
+    */
 
     endwin();
     return 0;

@@ -4,6 +4,7 @@ project(terminaltrains)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lm -lncurses  -ltinfo -pthread")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 include_directories(include)
 
@@ -13,5 +14,5 @@ include_directories("/home/joel/Documents/school/nvs_5te_klasse/inclue_libs/spdl
 # TODO: set env variables
 #include_directories($ENV{SPDLOG_INCLUDE_PATH})
 
-file(GLOB sources include/*.h src/*.cpp include/game/*.h include/game/*.cpp include/game/game_objects/*.h src/game/game_objects/*.cpp)
+file(GLOB sources include/*.h src/*.cpp include/game/*.h src/game/*.cpp include/game/game_objects/*.h src/game/game_objects/*.cpp)
 add_executable(terminaltrains ${sources})

@@ -7,14 +7,16 @@
 #ifndef TERMINALTRAINS_GAME_OBJECTS_H
 #define TERMINALTRAINS_GAME_OBJECTS_H
 
+#include "colors.h"
+
 #include <tuple>
 #include <vector>
 #include <ncurses.h>
 
-namespace gameobjects {
+namespace game::gameobjects {
 
     class GameObject {
-    private:
+    protected:
         // position
         int pos_height;
         int pos_width;
@@ -23,6 +25,8 @@ namespace gameobjects {
         int height;
         int width;
 
+        // color
+        unsigned int color{0};
     public:
         GameObject(int pos_height, int pos_width, int height, int width) : pos_height(pos_height), pos_width(pos_width),
                                                                          height(height), width(width) {}
@@ -43,9 +47,9 @@ namespace gameobjects {
         int load;
         CargoType cargo_type;
     public:
-        void tick();
-        void draw(WINDOW *window);
         Wagon(int pos_height, int pos_width, int capacity, CargoType cargo_type);
+        void tick();
+        void draw(WINDOW* window);
         void load_cargo();
         void load_cargo(int loading);
         int unload_cargo();
@@ -60,44 +64,55 @@ namespace gameobjects {
     public:
         Train(int pos_height, int pos_width, int height, int width);
         void tick();
-        void draw(WINDOW *window);
+        void draw(WINDOW* window);
         void start_driving_on_line(int line_length);
         bool drive_line();
+        void add_cargo();
+        void add_cargo(const int& cargo);
+        std::tuple<CargoType, int> unload_cargo();
     };
 
     // which drives on a Line
     class Line : public GameObject {
     private:
+        Train* arrived_train;
         std::vector<std::tuple<int, int>> line;
         std::vector<Train> trains;
     public:
         Line(int pos_height, int pos_width);
         void tick();
-        void draw(WINDOW *window);
+        void draw(WINDOW* window);
         void add_point(int pos_height, int pos_width);
         void add_train(Train train);
-        Train arrived();
+        Train* arrived();
     };
 
     // from City to City
     class City : public GameObject {
     private:
-
         std::vector<Line> outgoing_connections;
         std::vector<std::tuple<City, Line>> incoming_connections;
+        std::vector<Train> trains_at_city;
     public:
         City(int pos_height, int pos_width, int size);
+        void tick();
+        void draw(WINDOW* window);
         void add_incoming_line(const Line& line);
         void add_outgoing_line(const City& from, const Line& line);
-        void tick();
-        void draw(WINDOW *window);
     };
 
     // on a huge map
-    //class Map : public GameObject {
-    //    std::vector<City> cities;
-    //};
-
+    class Map : public GameObject {
+    private:
+        std::vector<City> cities;
+    public:
+        Map(int height, int width);
+        void tick();
+        void draw(WINDOW* window);
+        void add_city(const City& city);
+        bool is_city_at(int height, int width);
+        City get_city_at(int height, int width);
+    };
 }
 
 #endif //TERMINALTRAINS_GAME_OBJECTS_H

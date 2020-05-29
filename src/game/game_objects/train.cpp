@@ -6,25 +6,21 @@
 
 #include "game/game_objects.h"
 
-gameobjects::Train gameobjects::Line::arrived() {
-    return trains.back(); // TODO: only for testing, change to real condition later
-}
-
-void gameobjects::Train::tick() {
+void game::gameobjects::Train::tick() {
 
 }
 
-void gameobjects::Train::draw(WINDOW *window) {
+void game::gameobjects::Train::draw(WINDOW *window) {
 
 }
 
-void gameobjects::Train::start_driving_on_line(int line_length) {
-
+void game::gameobjects::Train::start_driving_on_line(int line_length) {
+    this->position_in_line = line_length;
 }
 
-bool gameobjects::Train::drive_line() {
-    return false;
+bool game::gameobjects::Train::drive_line() {
+    return position_in_line-- != 0;
 }
 
-gameobjects::Train::Train(int pos_height, int pos_width, int height, int width) : GameObject(pos_height, pos_width,
+game::gameobjects::Train::Train(int pos_height, int pos_width, int height, int width) : GameObject(pos_height, pos_width,
                                                                                              height, width) {}
