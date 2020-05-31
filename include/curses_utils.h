@@ -12,23 +12,6 @@
 #include <vector>
 #include <mutex>
 
-/*!
- * Simple helper function for creating a window
- * @param height of the new window
- * @param width of the new window
- * @param starty starting position in y
- * @param startx starting position in x
- * @return the newly created window
- */
-WINDOW *create_newwin(int height, int width, int starty, int startx) {
-    WINDOW *local_win;
-
-    local_win = newwin(height, width, starty, startx);
-    box(local_win, 0 , 0);
-    wrefresh(local_win);
-
-    return local_win;
-}
 
 /*!
  * An option which can be drawn in a menu.
@@ -60,6 +43,13 @@ public:
         werase(this->window);
         wattroff(this->window, A_REVERSE);
         wattron(this->window, A_NORMAL);
+        waddstr(this->window, this->title.c_str());
+    }
+    /*!
+     * Redraws the text
+     */
+    void redraw_subwin() {
+        erase();
         waddstr(this->window, this->title.c_str());
     }
     /*!
@@ -190,12 +180,18 @@ protected:
     int width;
     int pos_y;
     int pos_x;
+    bool has_decided;
     WINDOW* window;
     std::vector<Option> options{};
     std::vector<OptionTextInput> options_text_input{};
 public:
-    Menu(WINDOW* parent_window, const std::vector<std::string> &option_names, const int &input_options, const std::string &title, int height_modify = 3, int width_modify = 3) {
+    Menu(WINDOW* parent_window, const std::vector<std::string> &option_names, const int &input_options,
+            const std::string &title, int height_modify = 3, int width_modify = 3) {
         this->parent_window = parent_window;
+        this->has_decided = false;
+        this->title = title;
+        keypad(stdscr, true);
+        keypad(parent_window, true);
 
         if (parent_window == nullptr) {
             height = LINES / height_modify;
@@ -203,9 +199,11 @@ public:
 
             pos_y = (LINES - height) / 2;
             pos_x = (COLS - width) / 2;
-            this->window = create_newwin(height, width, pos_y, pos_x);
+            this->window = newwin(height, width, pos_y, pos_x);
+            box(this->window, 0 , 0);
+            mvwaddstr(this->window, 0, 1, title.c_str());
             wrefresh(this->window);
-            refresh();
+            refresh();  // is this necessary ? TODO: check
         } else {
             // if the parent window is too small this will cause a segfault
             this->window = derwin(parent_window,
@@ -214,11 +212,10 @@ public:
                                   (parent_window->_maxy - parent_window->_maxy / height_modify) / 2,
                                   (parent_window->_maxx - parent_window->_maxx / width_modify) / 2);
             box(this->window, 0 , 0);
+            mvwaddstr(this->window, 0, 1, title.c_str());
             touchwin(this->window);
             wrefresh(this->window);
         }
-        mvwaddstr(this->window, 0, 1, title.c_str());
-        this->title = title;
 
         for (unsigned long int i = 0; i < option_names.size(); ++i) {
             if (i+1 <= option_names.size() - input_options) {
@@ -242,12 +239,13 @@ public:
      * @param draw_mutex a mutex which has to be locked while drawing
      */
     void loop(std::mutex* draw_mutex = nullptr) {
+        has_decided = false;
         timeout(-1);
         int ch;
         while ((ch = getch()) != 10) {
-            if (ch == 66) {
+            if (ch == KEY_DOWN) {
                 this->down();
-            } else if (ch == 65) {
+            } else if (ch == KEY_UP) {
                 this->up();
             } else {
                 this->pass_input(ch);
@@ -262,6 +260,7 @@ public:
             }
         }
         timeout(0);
+        has_decided = true;
     }
     /*!
      * Return size of the menu window
@@ -322,6 +321,13 @@ public:
         }
     }
     /*!
+     * Returns true if the user chose an option
+     * @return true if evaluate or evaluate_choice can be called
+     */
+    bool can_evaluate() {
+        return this->has_decided;
+    }
+    /*!
      * Return the selected option from the user
      * @return string of the selected option
      */
@@ -343,16 +349,27 @@ public:
      * Refresh all windows and subwindows
      */
     void refresh_all() {
-        if (is_subwin(this->window)) {
-            touchwin(this->window);
-        }
-        wrefresh(this->window);
         for (auto op: options) {
             op.refresh();
         }
         for (auto op: options_text_input) {
             op.refresh();
         }
+        if (is_subwin(this->window)) {
+            touchwin(this->window);
+        }
+        wrefresh(this->window);
+    }
+    void redraw_all() {
+        box(this->window, 0 , 0);
+        mvwaddstr(this->window, 0, 1, this->title.c_str());
+        for (auto op: options) {
+            op.redraw_subwin();
+        }
+        for (auto op: options_text_input) {
+            op.redraw_subwin();
+        }
+        refresh_all();
     }
     /*!
      * Refresh and erase all windows and subwindows

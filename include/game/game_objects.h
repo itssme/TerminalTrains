@@ -96,12 +96,14 @@ namespace game::gameobjects {
         std::vector<std::tuple<City, Line>> incoming_connections;
         std::vector<Train> trains_at_city;
         WINDOW* window;
+        std::string name;
     public:
-        City(WINDOW* parent_window, int pos_height, int pos_width, int size);
+        City(WINDOW* parent_window, std::string name, int pos_height, int pos_width, int size);
         void tick();
         void draw(WINDOW* window);
         void add_incoming_line(const Line& line);
         void add_outgoing_line(const City& from, const Line& line);
+        bool is_point_within_city(int pos_height, int pos_width);
     };
 
     // on a huge map
@@ -114,8 +116,8 @@ namespace game::gameobjects {
         void tick();
         void draw(WINDOW* window);
         void add_city(const City& city);
-        bool is_city_at(int height, int width);
-        City get_city_at(int height, int width);
+        bool is_city_at(int pos_height, int pos_width);
+        City* get_city_at(int pos_height, int pos_width);
     };
 }
 

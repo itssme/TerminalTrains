@@ -1,7 +1,7 @@
-/*!
+/*! 
  * @author: Joel Klimont
  * @filename: colors.cpp
- * @date: 29/05/20
+ * @date: 31/05/20
 */
 
 #include "game/colors.h"

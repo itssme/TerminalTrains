@@ -13,7 +13,6 @@
 #include <iostream>
 #include <chrono>
 
-#include "curses_utils.h"
 #include "game/game.h"
 
 
@@ -39,7 +38,7 @@ int main() {
     refresh();
 
     bool in_menu{true};
-    WINDOW* main_window = create_newwin(LINES, COLS, 0, 0);
+    WINDOW* main_window = newwin(LINES, COLS, 0, 0);
 
     game::colors::init_colors();
 
