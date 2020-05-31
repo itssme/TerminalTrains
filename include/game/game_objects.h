@@ -86,6 +86,7 @@ namespace game::gameobjects {
         void draw(WINDOW* window);
         void add_point(int pos_height, int pos_width);
         void add_train(Train train);
+        int length();
         Train* arrived();
     };
 
@@ -95,7 +96,7 @@ namespace game::gameobjects {
         std::vector<Line> outgoing_connections;
         std::vector<std::tuple<City, Line>> incoming_connections;
         std::vector<Train> trains_at_city;
-        WINDOW* window;
+        WINDOW* city_window;
         std::string name;
     public:
         City(WINDOW* parent_window, std::string name, int pos_height, int pos_width, int size);
@@ -110,7 +111,7 @@ namespace game::gameobjects {
     class Map : public GameObject {
     private:
         std::vector<City> cities;
-        WINDOW* window;
+        WINDOW* map_window;
     public:
         Map(WINDOW* parent_window, int height, int width);
         void tick();
@@ -118,6 +119,7 @@ namespace game::gameobjects {
         void add_city(const City& city);
         bool is_city_at(int pos_height, int pos_width);
         City* get_city_at(int pos_height, int pos_width);
+        void add_line(City* from, City* to, Line* new_line);
     };
 }
 

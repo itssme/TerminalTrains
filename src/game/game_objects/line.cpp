@@ -42,3 +42,7 @@ void game::gameobjects::Line::add_train(gameobjects::Train train) {
 game::gameobjects::Train *game::gameobjects::Line::arrived() {
     return arrived_train;
 }
+
+int game::gameobjects::Line::length() {
+    return this->line.size();
+}

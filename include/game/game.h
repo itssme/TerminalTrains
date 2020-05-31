@@ -13,19 +13,36 @@
 
 #define TICK 50
 
+#define MENU_NONE 0
+#define MENU_CITY 1
+#define MENU_CONFIRM_LINE 2
+
+#define CURSOR_STATE_NONE 0
+#define CURSOR_STATE_LINE 1
+
 namespace game {
+
+    struct LineBuilder {
+        gameobjects::City* from;
+        gameobjects::City* to;
+        gameobjects::Line* new_line;
+        LineBuilder();
+    };
 
     class Game {
     private:
         int cursor_height;
         int cursor_width;
         int cursor_color;
+        int cursor_state;
+        int menu_type;
         bool running{true};
         std::mutex draw_mutex{};
         WINDOW* parent_window;
         WINDOW* menu_window;
         Menu* menu;
         gameobjects::Map map;
+        LineBuilder line_builder;
         void create_menu(const std::vector<std::string> &option_names, const int &input_options,
                          const std::string &title);
         std::thread* menu_thread;

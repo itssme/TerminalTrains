@@ -7,7 +7,7 @@
 #include "game/game_objects.h"
 
 game::gameobjects::Map::Map(WINDOW* parent_window, int height, int width) : GameObject(0, 0, height, width) {
-    this->window = parent_window;
+    this->map_window = parent_window;
 }
 
 void game::gameobjects::Map::tick() {
@@ -16,7 +16,7 @@ void game::gameobjects::Map::tick() {
     }
 }
 
-void game::gameobjects::Map::draw(WINDOW *window) {
+void game::gameobjects::Map::draw(WINDOW* window) {
     for (auto & city : cities) {
         city.draw(window);
     }
@@ -44,4 +44,9 @@ game::gameobjects::City* game::gameobjects::Map::get_city_at(int pos_height, int
     }
 
     return nullptr;
+}
+
+void game::gameobjects::Map::add_line(City* from, City* to, Line* new_line) {
+    from->add_outgoing_line(*to, *new_line);
+    to->add_incoming_line(*new_line);
 }
