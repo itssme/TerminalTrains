@@ -7,12 +7,12 @@
 #include "game/game_objects.h"
 
 game::gameobjects::Line::Line(int pos_height, int pos_width) : GameObject(pos_height, pos_width, 0, 0) {
-    color = COLOR_PAIR(RED);
+    color = COLOR_PAIR(WHITE);
 }
 
 void game::gameobjects::Line::tick() {
     for (auto & train : trains) {
-        if (train.drive_line()) {
+        if (! train.drive_line()) {
             arrived_train = &train;
         }
     }
@@ -35,7 +35,8 @@ void game::gameobjects::Line::add_point(int pos_height, int pos_width) {
 }
 
 void game::gameobjects::Line::add_train(gameobjects::Train train) {
-
+    train.start_driving_on_line(&this->line);
+    this->trains.emplace_back(train);
 }
 
 game::gameobjects::Train *game::gameobjects::Line::arrived() {

@@ -9,6 +9,7 @@
 
 #include "colors.h"
 
+#include <spdlog/spdlog.h>
 #include <tuple>
 #include <vector>
 #include <ncurses.h>
@@ -47,7 +48,7 @@ namespace game::gameobjects {
         int load;
         CargoType cargo_type;
     public:
-        Wagon(int pos_height, int pos_width, int capacity, CargoType cargo_type);
+        Wagon(int capacity, CargoType cargo_type);
         void tick();
         void draw(WINDOW* window);
         void load_cargo();
@@ -61,11 +62,12 @@ namespace game::gameobjects {
     private:
         std::vector<Wagon> wagons;
         int position_in_line;
+        std::vector<std::tuple<int, int>>* current_line;
     public:
-        Train(int pos_height, int pos_width, int height, int width);
+        Train();
         void tick();
         void draw(WINDOW* window);
-        void start_driving_on_line(int line_length);
+        void start_driving_on_line(std::vector<std::tuple<int, int>>* line);
         bool drive_line();
         void add_cargo();
         void add_cargo(const int& cargo);
@@ -75,7 +77,7 @@ namespace game::gameobjects {
     // which drives on a Line
     class Line : public GameObject {
     private:
-        Train* arrived_train;
+        Train* arrived_train = nullptr;
         std::vector<std::tuple<int, int>> line;
         std::vector<Train> trains;
     public:
@@ -93,8 +95,9 @@ namespace game::gameobjects {
         std::vector<Line> outgoing_connections;
         std::vector<std::tuple<City, Line>> incoming_connections;
         std::vector<Train> trains_at_city;
+        WINDOW* window;
     public:
-        City(int pos_height, int pos_width, int size);
+        City(WINDOW* parent_window, int pos_height, int pos_width, int size);
         void tick();
         void draw(WINDOW* window);
         void add_incoming_line(const Line& line);
@@ -105,8 +108,9 @@ namespace game::gameobjects {
     class Map : public GameObject {
     private:
         std::vector<City> cities;
+        WINDOW* window;
     public:
-        Map(int height, int width);
+        Map(WINDOW* parent_window, int height, int width);
         void tick();
         void draw(WINDOW* window);
         void add_city(const City& city);

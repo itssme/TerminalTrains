@@ -6,7 +6,9 @@
 
 #include "game/game_objects.h"
 
-game::gameobjects::Map::Map(int height, int width) : GameObject(0, 0, height, width) {}
+game::gameobjects::Map::Map(WINDOW* parent_window, int height, int width) : GameObject(0, 0, height, width) {
+    this->window = parent_window;
+}
 
 void game::gameobjects::Map::tick() {
     for (auto & city : cities) {

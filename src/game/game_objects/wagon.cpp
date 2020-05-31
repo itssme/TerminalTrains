@@ -6,8 +6,8 @@
 
 #include "game/game_objects.h"
 
-game::gameobjects::Wagon::Wagon(int pos_height, int pos_width, int capacity, gameobjects::CargoType cargo_type)
-        : GameObject(pos_height, pos_width, 1, 2), capacity(capacity), load(0),
+game::gameobjects::Wagon::Wagon(int capacity, gameobjects::CargoType cargo_type)
+        : GameObject(0, 0, 1, 2), capacity(capacity), load(0),
           cargo_type(cargo_type) {}
 
 void game::gameobjects::Wagon::tick() {

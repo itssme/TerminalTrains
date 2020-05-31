@@ -6,11 +6,15 @@
 
 #include "game/game_objects.h"
 
-game::gameobjects::City::City(int pos_height, int pos_width,
-                        int size) : GameObject(pos_height, pos_width, size*10, size*10) {}
+game::gameobjects::City::City(WINDOW* parent_window, int pos_height, int pos_width,
+                        int size) : GameObject(pos_height, pos_width, size*10, size*10) {
+    this->window = derwin(parent_window, size, size, pos_height, pos_width);
+}
 
 void game::gameobjects::City::draw(WINDOW *window) {
-    // TODO
+    box(this->window, 0 , 0);
+    touchwin(this->window);
+    wrefresh(this->window);
 }
 
 void game::gameobjects::City::tick() {

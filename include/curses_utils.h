@@ -194,12 +194,12 @@ protected:
     std::vector<Option> options{};
     std::vector<OptionTextInput> options_text_input{};
 public:
-    Menu(WINDOW* parent_window, const std::vector<std::string> &option_names, const int &input_options, const std::string &title) {
+    Menu(WINDOW* parent_window, const std::vector<std::string> &option_names, const int &input_options, const std::string &title, int height_modify = 3, int width_modify = 3) {
         this->parent_window = parent_window;
 
         if (parent_window == nullptr) {
-            height = LINES / 3;
-            width = COLS / 3;
+            height = LINES / height_modify;
+            width = COLS / width_modify;
 
             pos_y = (LINES - height) / 2;
             pos_x = (COLS - width) / 2;
@@ -209,10 +209,10 @@ public:
         } else {
             // if the parent window is too small this will cause a segfault
             this->window = derwin(parent_window,
-                                  parent_window->_maxy / 3,
-                                  parent_window->_maxx / 3,
-                                  (parent_window->_maxy - parent_window->_maxy / 3) / 2,
-                                  (parent_window->_maxx - parent_window->_maxx / 3) / 2);
+                                  parent_window->_maxy / height_modify,
+                                  parent_window->_maxx / width_modify,
+                                  (parent_window->_maxy - parent_window->_maxy / height_modify) / 2,
+                                  (parent_window->_maxx - parent_window->_maxx / width_modify) / 2);
             box(this->window, 0 , 0);
             touchwin(this->window);
             wrefresh(this->window);
@@ -242,6 +242,7 @@ public:
      * @param draw_mutex a mutex which has to be locked while drawing
      */
     void loop(std::mutex* draw_mutex = nullptr) {
+        timeout(-1);
         int ch;
         while ((ch = getch()) != 10) {
             if (ch == 66) {
@@ -260,6 +261,7 @@ public:
                 this->refresh_all();
             }
         }
+        timeout(0);
     }
     /*!
      * Return size of the menu window

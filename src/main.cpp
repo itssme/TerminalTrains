@@ -11,6 +11,7 @@
 #pragma GCC diagnostic pop
 
 #include <iostream>
+#include <chrono>
 
 #include "curses_utils.h"
 #include "game/game.h"
@@ -22,14 +23,18 @@ int main() {
         spdlog::set_default_logger(logger);
     } catch (const spdlog::spdlog_ex &ex) {
         std::cout << "Log init failed: " << ex.what() << std::endl;
+        return 1;
     }
 
     spdlog::info("started");
+    spdlog::flush_on(spdlog::level::info);
 
     initscr();
     cbreak();
     noecho();
     curs_set(0);
+    timeout(0);
+    keypad(stdscr, true);
     start_color();
     refresh();
 
@@ -38,25 +43,9 @@ int main() {
 
     game::colors::init_colors();
 
-    game::gameobjects::Line line(10, 10);
+    game::Game game(main_window);
 
-    line.add_point(11, 10);
-    line.add_point(12, 10);
-    line.add_point(13, 10);
-    line.add_point(14, 10);
-    line.add_point(14, 11);
-    line.add_point(14, 12);
-    line.add_point(14, 13);
-    line.add_point(14, 14);
-
-    line.draw(main_window);
-
-    wrefresh(main_window);
-
-    int ch;
-    while ((ch = getch()) != 10) {
-
-    }
+    game.game_loop();
 
     /*
     while (in_menu) {
@@ -67,7 +56,7 @@ int main() {
             main_menu_config.emplace_back("Start game");
             main_menu_config.emplace_back("Settings");
             main_menu_config.emplace_back("Exit");
-            Menu main_menu = Menu(main_window, main_menu_config, 0, " TerminalTrains Menu ");
+            Menu main_menu = Menu(menu_window, main_menu_config, 0, " TerminalTrains Menu ", 1, 1);
             main_menu.refresh_all();
             main_menu.loop();
             main_choice = main_menu.evaluate_choice();
@@ -81,7 +70,7 @@ int main() {
         }
 
     }
-    */
+     */
 
     endwin();
     return 0;
