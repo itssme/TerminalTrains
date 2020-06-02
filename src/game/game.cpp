@@ -47,6 +47,7 @@ void game::Game::game_loop() {
             wchar_t ch;
             int delta_height{0};
             int delta_width{0};
+            bool enter_pressed{false};
 
             while ((ch = getch()) != -1) {
                 if (ch == KEY_UP && delta_height == 0) {
@@ -63,6 +64,10 @@ void game::Game::game_loop() {
                 } else if (ch == KEY_RIGHT && delta_width == 0) {
                     if (cursor_width < COLS - 2)
                         delta_width++;
+                }
+
+                if (ch == 10) {
+                    enter_pressed = true;
                 }
             }
 
@@ -98,7 +103,18 @@ void game::Game::game_loop() {
                     this->create_menu(main_menu_config, 0, " Create Line ");
                 }
             }
-        } else {
+
+            if (enter_pressed && cursor_state == CURSOR_STATE_NONE && menu_type == MENU_NONE) {
+                std::vector<std::string> main_menu_config;
+                main_menu_config.emplace_back("Trains");
+                main_menu_config.emplace_back("Exit");
+
+                this->create_menu(main_menu_config, 0, " Game Menu ");
+                this->menu_type = MENU_GAME;
+            }
+
+        } else { // evaluate menu if possible
+
             if (menu->can_evaluate()) {
                 menu_thread->join();
                 int menu_choice = menu->evaluate_choice();
@@ -114,13 +130,41 @@ void game::Game::game_loop() {
                     } else if (menu_choice == 1) {
                         // TODO: city settings (don't forget setting menu_type)
                     }
+
                 } else if (this->menu_type == MENU_CONFIRM_LINE) {
                     menu_type = MENU_NONE;
                     if (menu_choice == 0) { // create actual line
-                        line_builder.new_line->add_train(gameobjects::Train());
-
                         map.add_line(line_builder.from, line_builder.to, line_builder.new_line);
                     }
+
+                } else if (this->menu_type == MENU_GAME) {
+                    if (menu_choice == 0) { // create train menu
+                        std::vector<std::string> main_menu_config;
+                        main_menu_config.emplace_back("Buy new Train");
+                        main_menu_config.emplace_back("Edit Train");
+                        main_menu_config.emplace_back("Exit");
+
+                        this->create_menu(main_menu_config, 0, " Train Menu ");
+                        menu_type = MENU_TRAIN;
+                    } else if (menu_choice == 1) {
+                        // TODO
+                    } else if (menu_choice == 2) {
+                        menu_type = MENU_NONE;
+                    }
+
+                } else if (this->menu_type == MENU_TRAIN) {
+                    if (menu_choice == 0) {
+                        std::vector<std::string> main_menu_config;
+                        main_menu_config.emplace_back("Taurus");
+                        main_menu_config.emplace_back("Back");
+
+                        this->create_menu(main_menu_config, 0, " Buy Train Menu ");
+                        menu_type = MENU_BUY_TRAIN;
+                    } else {
+                        menu_type = MENU_NONE;
+                    }
+                } else if (this->menu_type == MENU_BUY_TRAIN) {
+
                 }
             }
         }

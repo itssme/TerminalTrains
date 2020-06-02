@@ -14,8 +14,11 @@
 #define TICK 50
 
 #define MENU_NONE 0
-#define MENU_CITY 1
-#define MENU_CONFIRM_LINE 2
+#define MENU_GAME 1
+#define MENU_CITY 2
+#define MENU_CONFIRM_LINE 3
+#define MENU_TRAIN 4
+#define MENU_BUY_TRAIN 5
 
 #define CURSOR_STATE_NONE 0
 #define CURSOR_STATE_LINE 1
@@ -38,6 +41,7 @@ namespace game {
         int menu_type;
         bool running{true};
         std::mutex draw_mutex{};
+        std::vector<gameobjects::Train> trains;
         WINDOW* parent_window;
         WINDOW* menu_window;
         Menu* menu;
@@ -52,6 +56,7 @@ namespace game {
         void tick_all();
         void draw_all();
         void game_loop();
+        void add_train(gameobjects::Train train);
     };
 }
 

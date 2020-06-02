@@ -14,7 +14,7 @@
 #include <chrono>
 
 #include "game/game.h"
-
+#include "game/game_menus.h"
 
 int main() {
     try {
@@ -25,8 +25,8 @@ int main() {
         return 1;
     }
 
-    spdlog::info("started");
     spdlog::flush_on(spdlog::level::info);
+    spdlog::info("started");
 
     initscr();
     cbreak();
@@ -38,13 +38,27 @@ int main() {
     refresh();
 
     bool in_menu{true};
-    WINDOW* main_window = newwin(LINES, COLS, 0, 0);
+    WINDOW* main_window = newwin(LINES, 20, 0, 0);
 
     game::colors::init_colors();
 
-    game::Game game(main_window);
+    std::vector<std::string> main_menu_config;
+    main_menu_config.emplace_back("Create new Line");
+    main_menu_config.emplace_back("City Settings");
+    main_menu_config.emplace_back("Exit");
 
-    game.game_loop();
+    std::vector<std::string> description;
+    description.emplace_back("Hello this is a very long text and this description is very long and so");
+    description.emplace_back("");
+    description.emplace_back("Exit the Menu");
+
+    game::menu::curses::Menu menu(main_window, main_menu_config, description, 0, " Menu ");
+
+    menu.loop();
+
+    //game::Game game(main_window);
+
+    //game.game_loop();
 
     /*
     while (in_menu) {

@@ -19,7 +19,8 @@ void game::gameobjects::Train::draw(WINDOW* window) {
 }
 
 bool game::gameobjects::Train::drive_line() {
-    if (position_in_line--) {
+    if (position_in_line) {
+        position_in_line--;
         std::tuple<int, int> position = current_line->at((current_line->size()-1) - position_in_line);
         this->pos_height = std::get<0>(position);
         this->pos_width = std::get<1>(position);

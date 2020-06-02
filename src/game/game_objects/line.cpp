@@ -39,7 +39,7 @@ void game::gameobjects::Line::add_train(gameobjects::Train train) {
     this->trains.emplace_back(train);
 }
 
-game::gameobjects::Train *game::gameobjects::Line::arrived() {
+game::gameobjects::Train* game::gameobjects::Line::arrived() {
     return arrived_train;
 }
 
