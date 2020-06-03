@@ -243,6 +243,7 @@ namespace game :: menu :: curses {
             }
             this->options.at(0).select();
             this->at_option = 0;
+            erase();
             redraw_all();
         }
 
@@ -265,18 +266,17 @@ namespace game :: menu :: curses {
                     this->pass_input(ch);
                 }
 
-                if (draw_mutex != nullptr) {
-                    draw_mutex->lock();
-                    this->draw_description();
-                    this->refresh_all();
-                    draw_mutex->unlock();
-                } else {
-                    this->draw_description();
-                    this->refresh_all();
-                }
+                draw_mutex->lock();
+                this->draw_description();
+                this->refresh_all();
+                draw_mutex->unlock();
             }
             timeout(0);
             has_decided = true;
+            draw_mutex->lock();
+            erase();
+            refresh_all();
+            draw_mutex->unlock();
         }
 
         /*!
@@ -390,12 +390,16 @@ namespace game :: menu :: curses {
             std::string description = options.at(at_option).get_description();
 
             if (description != "") {
-                box(this->description_window, 0, 0);
                 mvwaddstr(this->description_window, 0, 1, " Description ");
 
                 int line_n{0};
                 for (unsigned long int i = 0; i < description.length(); i += this->description_window->_maxx - 1) {
                     std::string line = description.substr(i, this->description_window->_maxx - 1);
+
+                    // right trim
+                    line.erase(std::find_if(line.rbegin(), line.rend(), [](int ch) {
+                        return !std::isspace(ch);
+                    }).base(), line.end());
 
                     // left trim
                     line.erase(line.begin(), std::find_if(line.begin(), line.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
@@ -403,6 +407,8 @@ namespace game :: menu :: curses {
                     mvwaddstr(this->description_window, line_n + 1, 1, line.c_str());
                     line_n++;
                 }
+
+                box(this->description_window, 0, 0);
             }
         }
 
