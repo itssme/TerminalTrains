@@ -14,7 +14,7 @@
 #include <chrono>
 
 #include "game/game.h"
-#include "game/game_menus.h"
+#include "game/curses_menus.h"
 
 int main() {
     try {
@@ -38,7 +38,7 @@ int main() {
     refresh();
 
     bool in_menu{true};
-    WINDOW* main_window = newwin(LINES, 20, 0, 0);
+    WINDOW* main_window = newwin(LINES, COLS, 0, 0);
 
     game::colors::init_colors();
 
@@ -48,17 +48,17 @@ int main() {
     main_menu_config.emplace_back("Exit");
 
     std::vector<std::string> description;
-    description.emplace_back("Hello this is a very long text and this description is very long and so");
+    description.emplace_back("Hello this is a very long text so this description is very long and does not fit into a line");
     description.emplace_back("");
     description.emplace_back("Exit the Menu");
 
-    game::menu::curses::Menu menu(main_window, main_menu_config, description, 0, " Menu ");
+    //game::menu::curses::Menu menu(main_window, main_menu_config, description, 0, " Menu ");
 
-    menu.loop();
+    //menu.loop();
 
-    //game::Game game(main_window);
+    game::Game game(main_window);
 
-    //game.game_loop();
+    game.game_loop();
 
     /*
     while (in_menu) {

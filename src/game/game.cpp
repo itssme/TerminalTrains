@@ -20,6 +20,7 @@ game::Game::Game(WINDOW* parent_window) : parent_window{parent_window}, map(pare
 
     this->map.add_city(gameobjects::City(parent_window, " Vienna ", 10, 10, 5));
     this->map.add_city(gameobjects::City(parent_window, " Linz ", 16, 75, 5));
+    this->trains.emplace_back(gameobjects::Train());
 }
 
 void game::Game::create_menu(const std::vector<std::string> &option_names, const int &input_options,
@@ -105,72 +106,63 @@ void game::Game::game_loop() {
             }
 
             if (enter_pressed && cursor_state == CURSOR_STATE_NONE && menu_type == MENU_NONE) {
-                std::vector<std::string> main_menu_config;
-                main_menu_config.emplace_back("Trains");
-                main_menu_config.emplace_back("Exit");
-
-                this->create_menu(main_menu_config, 0, " Game Menu ");
                 this->menu_type = MENU_GAME;
+                this->game_menu = new menu::GameMenu(this);
+                this->menu_window = derwin(parent_window, LINES-1, 25, 1, COLS - 26);
+                this->menu_thread = new std::thread([&] {
+                    game_menu->loop(menu_window, &draw_mutex);
+                });
             }
 
         } else { // evaluate menu if possible
 
-            if (menu->can_evaluate()) {
-                menu_thread->join();
-                int menu_choice = menu->evaluate_choice();
-                werase(menu_window);
-                menu_window = nullptr;
-                menu = nullptr;
+            if (menu != nullptr) {
+                if (menu->can_evaluate()) {
+                    menu_thread->join();
+                    int menu_choice = menu->evaluate_choice();
+                    werase(menu_window);
+                    menu_window = nullptr;
+                    menu = nullptr;
 
-                if (this->menu_type == MENU_CITY) {
-                    menu_type = MENU_NONE;
-                    if (menu_choice == 0) { // start creating new line
-                        cursor_state = CURSOR_STATE_LINE;
-                        line_builder.new_line = new gameobjects::Line(cursor_height, cursor_width);
-                    } else if (menu_choice == 1) {
-                        // TODO: city settings (don't forget setting menu_type)
-                    }
-
-                } else if (this->menu_type == MENU_CONFIRM_LINE) {
-                    menu_type = MENU_NONE;
-                    if (menu_choice == 0) { // create actual line
-                        map.add_line(line_builder.from, line_builder.to, line_builder.new_line);
-                    }
-
-                } else if (this->menu_type == MENU_GAME) {
-                    if (menu_choice == 0) { // create train menu
-                        std::vector<std::string> main_menu_config;
-                        main_menu_config.emplace_back("Buy new Train");
-                        main_menu_config.emplace_back("Edit Train");
-                        main_menu_config.emplace_back("Exit");
-
-                        this->create_menu(main_menu_config, 0, " Train Menu ");
-                        menu_type = MENU_TRAIN;
-                    } else if (menu_choice == 1) {
-                        // TODO
-                    } else if (menu_choice == 2) {
+                    if (this->menu_type == MENU_CITY) {
                         menu_type = MENU_NONE;
-                    }
+                        if (menu_choice == 0) { // start creating new line
+                            cursor_state = CURSOR_STATE_LINE;
+                            line_builder.new_line = new gameobjects::Line(cursor_height, cursor_width);
+                        } else if (menu_choice == 1) {
+                            // TODO: city settings (don't forget setting menu_type)
+                        }
 
-                } else if (this->menu_type == MENU_TRAIN) {
-                    if (menu_choice == 0) {
-                        std::vector<std::string> main_menu_config;
-                        main_menu_config.emplace_back("Taurus");
-                        main_menu_config.emplace_back("Back");
-
-                        this->create_menu(main_menu_config, 0, " Buy Train Menu ");
-                        menu_type = MENU_BUY_TRAIN;
-                    } else {
+                    } else if (this->menu_type == MENU_CONFIRM_LINE) {
                         menu_type = MENU_NONE;
-                    }
-                } else if (this->menu_type == MENU_BUY_TRAIN) {
+                        if (menu_choice == 0) { // create actual line
+                            line_builder.new_line->add_train(this->trains.at(0));
+                            map.add_line(line_builder.from, line_builder.to, line_builder.new_line);
+                        }
 
+                    }
+                }
+            }
+
+            if (game_menu != nullptr) {
+                if (game_menu->can_evaluate()) {
+                    menu_thread->join();
+                    int menu_choice = game_menu->evaluate();
+                    werase(menu_window);
+                    menu_window = nullptr;
+                    game_menu = nullptr;
+                    menu_type = MENU_NONE;
                 }
             }
         }
 
         auto end = std::chrono::steady_clock::now();
-        std::this_thread::sleep_for(std::chrono::milliseconds(TICK)-(end-start));
+
+        try {
+            std::this_thread::sleep_for(std::chrono::milliseconds(TICK)-(end-start));
+        } catch (const std::exception& e) {
+            spdlog::info(e.what());
+        }
     }
 }
 
@@ -187,7 +179,11 @@ void game::Game::draw_all() {
     box(this->parent_window, 0 , 0);
 
     if (this->menu_window != nullptr) {
-        this->menu->redraw_all();
+        if (this->menu != nullptr) {
+            this->menu->redraw_all();
+        } else if (this->game_menu != nullptr) {
+            this->game_menu->draw(parent_window);
+        }
     }
 
     if (this->cursor_state == CURSOR_STATE_LINE ||

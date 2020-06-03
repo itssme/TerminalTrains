@@ -9,6 +9,7 @@
 
 #include "curses_utils.h"
 #include "game_objects.h"
+#include "menus.h"
 #include "colors.h"
 
 #define TICK 50
@@ -17,8 +18,6 @@
 #define MENU_GAME 1
 #define MENU_CITY 2
 #define MENU_CONFIRM_LINE 3
-#define MENU_TRAIN 4
-#define MENU_BUY_TRAIN 5
 
 #define CURSOR_STATE_NONE 0
 #define CURSOR_STATE_LINE 1
@@ -44,7 +43,8 @@ namespace game {
         std::vector<gameobjects::Train> trains;
         WINDOW* parent_window;
         WINDOW* menu_window;
-        Menu* menu;
+        Menu* menu = nullptr;
+        menu::Menu* game_menu = nullptr;
         gameobjects::Map map;
         LineBuilder line_builder;
         void create_menu(const std::vector<std::string> &option_names, const int &input_options,

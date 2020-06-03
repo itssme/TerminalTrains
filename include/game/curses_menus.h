@@ -4,13 +4,15 @@
  * @date: 02/06/20
 */
 
-#ifndef TERMINALTRAINS_GAME_MENUS_H
-#define TERMINALTRAINS_GAME_MENUS_H
+#ifndef TERMINALTRAINS_CURSES_MENUS_H
+#define TERMINALTRAINS_CURSES_MENUS_H
 
 #include <mutex>
 #include <string>
 #include <vector>
 #include <ncurses.h>
+
+class Game;
 
 namespace game :: menu :: curses {
     /*!
@@ -89,15 +91,17 @@ namespace game :: menu :: curses {
      */
     struct OptionTextInput {
         std::string title;
+        std::string description;
         std::string text;
         int length;
         int input_size;
         WINDOW* window;
         WINDOW* text_window;
-        OptionTextInput(WINDOW* parent_window, const std::string &title, int begin_y, int input_size) {
+        OptionTextInput(WINDOW* parent_window, const std::string &title, const std::string &description, int begin_y, int input_size) {
             this->length = static_cast<int>(title.size() + input_size + 2);
             this->window = derwin(parent_window, 1, this->length, begin_y, parent_window->_maxx/2 - this->length/2);
             this->title = title;
+            this->description = description;
             waddstr(this->window, (this->title + " ").c_str());
             this->text_window = derwin(this->window, 1, input_size, 0, static_cast<int>(title.size() + 1));
             wattron(this->text_window, A_UNDERLINE);
@@ -176,6 +180,13 @@ namespace game :: menu :: curses {
             wrefresh(this->window);
         }
         /*!
+         * Returns the description such that it can be drawn in different WINDOW defined by the menu
+         * @return The description of this option
+         */
+        std::string get_description() {
+            return this->description;
+        }
+        /*!
          * Clear subwindow of the option.
          */
         void erase() {
@@ -224,6 +235,7 @@ namespace game :: menu :: curses {
                                                                        option_names.at(i).length() / 2)));
                 } else {
                     this->options_text_input.emplace_back(OptionTextInput(this->window, option_names.at(i),
+                                                                          option_descriptions.at(i),
                                                                           static_cast<int>(window->_maxy / 2 -
                                                                                            option_names.size() / 2 + i),
                                                                           12));
@@ -243,6 +255,7 @@ namespace game :: menu :: curses {
             has_decided = false;
             timeout(-1);
             int ch;
+
             while ((ch = getch()) != 10) {
                 if (ch == KEY_DOWN) {
                     this->down();
@@ -422,4 +435,4 @@ namespace game :: menu :: curses {
     };
 }
 
-#endif //TERMINALTRAINS_GAME_MENUS_H
+#endif //TERMINALTRAINS_CURSES_MENUS_H
