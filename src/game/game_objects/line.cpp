@@ -46,3 +46,23 @@ game::gameobjects::Train* game::gameobjects::Line::arrived() {
 int game::gameobjects::Line::length() {
     return this->line.size();
 }
+
+bool game::gameobjects::Line::is_point_in_line(int pos_height, int pos_width) {
+    if (line.empty()) {
+        return false;
+    }
+    return std::find(line.begin(), line.end(), std::make_tuple(pos_height, pos_width)) != line.end();
+}
+
+bool game::gameobjects::Line::is_point_at_end_of_line(int pos_height, int pos_width) {
+    if (line.empty()) {
+        return false;
+    }
+    return line.back() == std::make_tuple(pos_height, pos_width);
+}
+
+void game::gameobjects::Line::remove_last_point() {
+    if (! line.empty()) {
+        line.pop_back();
+    }
+}

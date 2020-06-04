@@ -75,6 +75,7 @@ struct OptionTextInput {
     std::string text;
     int length;
     int input_size;
+    bool selected{false};
     WINDOW* window;
     WINDOW* text_window;
     OptionTextInput(WINDOW* parent_window, const std::string &title, int begin_y, int input_size) {
@@ -95,14 +96,14 @@ struct OptionTextInput {
      */
     void pass_input(int ch) {
         if (ch != 91 && ch != 27) {
-            if (ch == 127) {
+            if (ch == KEY_BACKSPACE) {
                 if (this->text.length()) {
                     this->text.pop_back();
                 }
             } else {
                 this->text += static_cast<char>(ch);
             }
-            this->redraw_subwin();
+            this->redraw_option();
         }
     }
     /*!
@@ -115,7 +116,7 @@ struct OptionTextInput {
     /*!
      * Redraw the option subwindow
      */
-    void redraw_subwin() {
+    void redraw_option() {
         werase(this->text_window);
 
         for (auto ch: this->text) {
@@ -123,6 +124,17 @@ struct OptionTextInput {
         }
         for (unsigned int i = 0; i < this->length - this->text.length(); ++i) {
             waddch(this->text_window, ' ');
+        }
+    }
+    /*!
+     * Redraw the whole option
+     */
+    void redraw_subwin() {
+        werase(this->window);
+        if (selected) {
+            this->select();
+        } else {
+            this->de_select();
         }
     }
     /*!
@@ -136,7 +148,8 @@ struct OptionTextInput {
         waddstr(this->window, this->title.c_str());
         wattroff(this->window, A_REVERSE);
         waddstr(this->window, " ");
-        redraw_subwin();
+        redraw_option();
+        selected = true;
     }
     /*!
      * Deselecting the option will cause it being rendered
@@ -147,7 +160,8 @@ struct OptionTextInput {
         wattron(this->window, A_NORMAL);
         waddstr(this->window, this->title.c_str());
         waddstr(this->window, " ");
-        redraw_subwin();
+        redraw_option();
+        selected = false;
     }
     /*!
      * Refresh subwindow of the option.
@@ -218,20 +232,21 @@ public:
         }
 
         for (unsigned long int i = 0; i < option_names.size(); ++i) {
-            if (i+1 <= option_names.size() - input_options) {
+            if (i < static_cast<unsigned long int>(input_options)) {
+                this->options_text_input.emplace_back(OptionTextInput(this->window, option_names.at(i),
+                                                                      static_cast<int>(window->_maxy / 2 - option_names.size() / 2 + i),
+                                                                      12));
+            } else {
                 this->options.emplace_back(Option(this->window, option_names.at(i),
                                                   static_cast<int>(option_names.at(i).size()) + 1,
                                                   static_cast<int>(window->_maxy / 2 - option_names.size() / 2 + i),
                                                   static_cast<int>(window->_maxx / 2 -
                                                                    option_names.at(i).length() / 2)));
-            } else {
-                this->options_text_input.emplace_back(OptionTextInput(this->window, option_names.at(i),
-                                                                      static_cast<int>(window->_maxy / 2 - option_names.size() / 2 + i),
-                                                                      12));
             }
         }
         this->options.at(0).select();
         this->at_option = 0;
+        this->redraw_all();
     }
     /*!
      * Update and refresh the terminal until
@@ -332,11 +347,18 @@ public:
      * @return string of the selected option
      */
     std::string evaluate() {
-        if (at_option < this->options.size()) {
-            return this->options.at(at_option).title;
+        if (at_option < this->options_text_input.size()) {
+            return this->options_text_input.at(at_option).evaluate();
         } else {
-            return this->options_text_input.at(at_option-options.size()).evaluate();
+            return this->options.at(at_option - options_text_input.size()).title;
         }
+    }
+    std::vector<std::string> get_text_options() {
+        std::vector<std::string> text{};
+        for (int i = 0; i < options_text_input.size(); ++i) {
+            text.emplace_back(options_text_input.at(i).evaluate());
+        }
+        return text;
     }
     /*!
      * Return the selected option from the user

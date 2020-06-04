@@ -90,18 +90,29 @@ void game::Game::game_loop() {
                 }
             } else if (cursor_state == CURSOR_STATE_LINE) {
                 if (city == nullptr) {
-                    cursor_height += delta_height;
-                    cursor_width += delta_width;
-                    line_builder.new_line->add_point(cursor_height, cursor_width);
+                    if (delta_height != 0 || delta_width != 0) {
+                        if (line_builder.new_line->is_point_at_end_of_line(cursor_height + delta_height, cursor_width + delta_width)) {
+                            line_builder.new_line->remove_last_point();
+                            cursor_height += delta_height;
+                            cursor_width += delta_width;
+                        } else if (!line_builder.new_line->is_point_in_line(cursor_height + delta_height, cursor_width + delta_width)) {
+                            line_builder.new_line->add_point(cursor_height, cursor_width);
+                            cursor_height += delta_height;
+                            cursor_width += delta_width;
+                        }
+                    }
                 } else {
+                    line_builder.new_line->add_point(cursor_height, cursor_width);
+
                     line_builder.to = city;
                     cursor_state = CURSOR_STATE_NONE;
                     menu_type = MENU_CONFIRM_LINE;
 
                     std::vector<std::string> main_menu_config;
+                    main_menu_config.emplace_back("Name:");
                     main_menu_config.emplace_back("Create Line " + std::to_string(line_builder.new_line->length()));
                     main_menu_config.emplace_back("Exit");
-                    this->create_menu(main_menu_config, 0, " Create Line ");
+                    this->create_menu(main_menu_config, 1, " Create Line ");
                 }
             }
 
@@ -120,6 +131,7 @@ void game::Game::game_loop() {
                 if (menu->can_evaluate()) {
                     menu_thread->join();
                     int menu_choice = menu->evaluate_choice();
+                    std::vector<std::string> menu_text = menu->get_text_options();
                     werase(menu_window);
                     menu_window = nullptr;
                     menu = nullptr;
@@ -135,11 +147,11 @@ void game::Game::game_loop() {
 
                     } else if (this->menu_type == MENU_CONFIRM_LINE) {
                         menu_type = MENU_NONE;
-                        if (menu_choice == 0) { // create actual line
+                        if (menu_choice == 0 || menu_choice == 2) { // create actual line
                             line_builder.new_line->add_train(this->trains.at(0));
+                            spdlog::info("line name " + menu_text.at(0)); // TODO: set line name in line
                             map.add_line(line_builder.from, line_builder.to, line_builder.new_line);
                         }
-
                     }
                 }
             }

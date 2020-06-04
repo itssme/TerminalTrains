@@ -45,19 +45,20 @@ int main() {
     std::vector<std::string> main_menu_config;
     main_menu_config.emplace_back("Create new Line");
     main_menu_config.emplace_back("City Settings");
-    main_menu_config.emplace_back("Exit");
+    main_menu_config.emplace_back("Line: ");
 
     std::vector<std::string> description;
     description.emplace_back("Hello this is a very long text so this description is very long and does not fit into a line");
     description.emplace_back("");
     description.emplace_back("Exit the Menu");
 
-    //game::menu::curses::Menu menu(main_window, main_menu_config, description, 0, " Menu ");
+    //Menu menu(main_window, main_menu_config, 1, " Menu ");
+    //menu.loop();
 
+    //game::menu::curses::Menu menu(main_window, main_menu_config, description, 0, " Menu ");
     //menu.loop();
 
     game::Game game(main_window);
-
     game.game_loop();
 
     /*

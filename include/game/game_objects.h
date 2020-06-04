@@ -85,8 +85,11 @@ namespace game::gameobjects {
         void tick();
         void draw(WINDOW* window);
         void add_point(int pos_height, int pos_width);
+        void remove_last_point();
         void add_train(Train train);
         int length();
+        bool is_point_in_line(int pos_height, int pos_width);
+        bool is_point_at_end_of_line(int pos_height, int pos_width);
         Train* arrived();
     };
 
