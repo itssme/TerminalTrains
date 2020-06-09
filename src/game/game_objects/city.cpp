@@ -30,12 +30,12 @@ void game::gameobjects::City::tick() {
     }
 }
 
-void game::gameobjects::City::add_incoming_line(const gameobjects::Line& line) {
-    this->outgoing_connections.emplace_back(line);
+void game::gameobjects::City::add_incoming_track(const gameobjects::Track &track) {
+    this->outgoing_connections.emplace_back(track);
 }
 
-void game::gameobjects::City::add_outgoing_line(const gameobjects::City& from, const gameobjects::Line& line) {
-    this->incoming_connections.emplace_back(std::tuple<gameobjects::City, gameobjects::Line>(from, line));
+void game::gameobjects::City::add_outgoing_track(const gameobjects::City &from, const gameobjects::Track &track) {
+    this->incoming_connections.emplace_back(std::tuple<gameobjects::City, gameobjects::Track>(from, track));
 }
 
 bool game::gameobjects::City::is_point_within_city(int pos_height, int pos_width) {

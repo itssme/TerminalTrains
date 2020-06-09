@@ -74,30 +74,34 @@ namespace game::gameobjects {
         std::tuple<CargoType, int> unload_cargo();
     };
 
-    // which drives on a Line
-    class Line : public GameObject {
+    // which drives on a Track
+    class Track : public GameObject {
     private:
+        int track_name_position{0};
+        std::string track_name{""};
         Train* arrived_train = nullptr;
-        std::vector<std::tuple<int, int>> line;
+        std::vector<std::tuple<int, int>> track;
         std::vector<Train> trains;
     public:
-        Line(int pos_height, int pos_width);
+        Track(int pos_height, int pos_width);
         void tick();
         void draw(WINDOW* window);
         void add_point(int pos_height, int pos_width);
         void remove_last_point();
         void add_train(Train train);
         int length();
-        bool is_point_in_line(int pos_height, int pos_width);
-        bool is_point_at_end_of_line(int pos_height, int pos_width);
+        bool is_point_on_track(int pos_height, int pos_width);
+        bool is_point_at_end_of_track(int pos_height, int pos_width);
+        void rename_track(std::string new_track_name);
+        std::string get_track_name();
         Train* arrived();
     };
 
     // from City to City
     class City : public GameObject {
     private:
-        std::vector<Line> outgoing_connections;
-        std::vector<std::tuple<City, Line>> incoming_connections;
+        std::vector<Track> outgoing_connections;
+        std::vector<std::tuple<City, Track>> incoming_connections;
         std::vector<Train> trains_at_city;
         WINDOW* city_window;
         std::string name;
@@ -105,8 +109,8 @@ namespace game::gameobjects {
         City(WINDOW* parent_window, std::string name, int pos_height, int pos_width, int size);
         void tick();
         void draw(WINDOW* window);
-        void add_incoming_line(const Line& line);
-        void add_outgoing_line(const City& from, const Line& line);
+        void add_incoming_track(const Track &track);
+        void add_outgoing_track(const City &from, const Track &track);
         bool is_point_within_city(int pos_height, int pos_width);
     };
 
@@ -122,7 +126,7 @@ namespace game::gameobjects {
         void add_city(const City& city);
         bool is_city_at(int pos_height, int pos_width);
         City* get_city_at(int pos_height, int pos_width);
-        void add_line(City* from, City* to, Line* new_line);
+        void add_track(City* from, City* to, Track* new_track);
     };
 }
 

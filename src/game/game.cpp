@@ -80,39 +80,41 @@ void game::Game::game_loop() {
                     cursor_width += delta_width;
                 } else {
                     std::vector<std::string> main_menu_config;
-                    main_menu_config.emplace_back("Create new Line");
+                    main_menu_config.emplace_back("Create new Track");
                     main_menu_config.emplace_back("City Settings");
                     main_menu_config.emplace_back("Exit");
 
                     this->create_menu(main_menu_config, 0, " City Menu ");
                     menu_type = MENU_CITY;
-                    line_builder.from = city;
+                    track_builder.from = city;
                 }
             } else if (cursor_state == CURSOR_STATE_LINE) {
                 if (city == nullptr) {
                     if (delta_height != 0 || delta_width != 0) {
-                        if (line_builder.new_line->is_point_at_end_of_line(cursor_height + delta_height, cursor_width + delta_width)) {
-                            line_builder.new_line->remove_last_point();
+                        if (track_builder.new_track->is_point_at_end_of_track(cursor_height + delta_height,
+                                                                            cursor_width + delta_width)) {
+                            track_builder.new_track->remove_last_point();
                             cursor_height += delta_height;
                             cursor_width += delta_width;
-                        } else if (!line_builder.new_line->is_point_in_line(cursor_height + delta_height, cursor_width + delta_width)) {
-                            line_builder.new_line->add_point(cursor_height, cursor_width);
+                        } else if (!track_builder.new_track->is_point_on_track(cursor_height + delta_height,
+                                                                             cursor_width + delta_width)) {
+                            track_builder.new_track->add_point(cursor_height, cursor_width);
                             cursor_height += delta_height;
                             cursor_width += delta_width;
                         }
                     }
                 } else {
-                    line_builder.new_line->add_point(cursor_height, cursor_width);
+                    track_builder.new_track->add_point(cursor_height, cursor_width);
 
-                    line_builder.to = city;
+                    track_builder.to = city;
                     cursor_state = CURSOR_STATE_NONE;
-                    menu_type = MENU_CONFIRM_LINE;
+                    menu_type = MENU_CONFIRM_TRACK;
 
                     std::vector<std::string> main_menu_config;
                     main_menu_config.emplace_back("Name:");
-                    main_menu_config.emplace_back("Create Line " + std::to_string(line_builder.new_line->length()));
+                    main_menu_config.emplace_back("Create Track " + std::to_string(track_builder.new_track->length()));
                     main_menu_config.emplace_back("Exit");
-                    this->create_menu(main_menu_config, 1, " Create Line ");
+                    this->create_menu(main_menu_config, 1, " Create Track ");
                 }
             }
 
@@ -138,19 +140,19 @@ void game::Game::game_loop() {
 
                     if (this->menu_type == MENU_CITY) {
                         menu_type = MENU_NONE;
-                        if (menu_choice == 0) { // start creating new line
+                        if (menu_choice == 0) { // start creating new track
                             cursor_state = CURSOR_STATE_LINE;
-                            line_builder.new_line = new gameobjects::Line(cursor_height, cursor_width);
+                            track_builder.new_track = new gameobjects::Track(cursor_height, cursor_width);
                         } else if (menu_choice == 1) {
                             // TODO: city settings (don't forget setting menu_type)
                         }
 
-                    } else if (this->menu_type == MENU_CONFIRM_LINE) {
+                    } else if (this->menu_type == MENU_CONFIRM_TRACK) {
                         menu_type = MENU_NONE;
-                        if (menu_choice == 0 || menu_choice == 2) { // create actual line
-                            line_builder.new_line->add_train(this->trains.at(0));
-                            spdlog::info("line name " + menu_text.at(0)); // TODO: set line name in line
-                            map.add_line(line_builder.from, line_builder.to, line_builder.new_line);
+                        if (menu_choice == 0 || menu_choice == 2) { // create actual track
+                            track_builder.new_track->rename_track(menu_text.at(0));
+                            track_builder.new_track->add_train(this->trains.at(0)); // TODO: remove this later
+                            map.add_track(track_builder.from, track_builder.to, track_builder.new_track);
                         }
                     }
                 }
@@ -199,8 +201,8 @@ void game::Game::draw_all() {
     }
 
     if (this->cursor_state == CURSOR_STATE_LINE ||
-        this->menu_type == MENU_CONFIRM_LINE) {
-        this->line_builder.new_line->draw(parent_window);
+        this->menu_type == MENU_CONFIRM_TRACK) {
+        this->track_builder.new_track->draw(parent_window);
     }
 
     draw_cursor();
@@ -211,6 +213,6 @@ void game::Game::draw_all() {
 game::LineBuilder::LineBuilder() {
     this->from = nullptr;
     this->to = nullptr;
-    this->new_line = nullptr;
+    this->new_track = nullptr;
 
 }

@@ -13,6 +13,8 @@
 #include <mutex>
 
 
+// this file will eventually become deprecated and be replaced by game/curses_menus.h
+
 /*!
  * An option which can be drawn in a menu.
  */

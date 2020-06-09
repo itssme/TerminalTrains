@@ -14,4 +14,5 @@ void game::colors::init_colors() {
     init_pair(WHITE, COLOR_WHITE, COLOR_WHITE);
     init_pair(BLACK, COLOR_BLACK, COLOR_BLACK);
     init_pair(YELLOW, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(BLACK_WHITE, COLOR_BLACK, COLOR_WHITE);
 }

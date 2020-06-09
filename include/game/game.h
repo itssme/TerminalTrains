@@ -17,7 +17,7 @@
 #define MENU_NONE 0
 #define MENU_GAME 1
 #define MENU_CITY 2
-#define MENU_CONFIRM_LINE 3
+#define MENU_CONFIRM_TRACK 3
 
 #define CURSOR_STATE_NONE 0
 #define CURSOR_STATE_LINE 1
@@ -27,7 +27,7 @@ namespace game {
     struct LineBuilder {
         gameobjects::City* from;
         gameobjects::City* to;
-        gameobjects::Line* new_line;
+        gameobjects::Track* new_track;
         LineBuilder();
     };
 
@@ -46,7 +46,7 @@ namespace game {
         Menu* menu = nullptr;
         menu::Menu* game_menu = nullptr;
         gameobjects::Map map;
-        LineBuilder line_builder;
+        LineBuilder track_builder;
         void create_menu(const std::vector<std::string> &option_names, const int &input_options,
                          const std::string &title);
         std::thread* menu_thread;

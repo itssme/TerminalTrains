@@ -46,7 +46,7 @@ game::gameobjects::City* game::gameobjects::Map::get_city_at(int pos_height, int
     return nullptr;
 }
 
-void game::gameobjects::Map::add_line(City* from, City* to, Line* new_line) {
-    from->add_outgoing_line(*to, *new_line);
-    to->add_incoming_line(*new_line);
+void game::gameobjects::Map::add_track(City* from, City* to, Track* new_track) {
+    from->add_outgoing_track(*to, *new_track);
+    to->add_incoming_track(*new_track);
 }

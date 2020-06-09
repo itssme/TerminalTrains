@@ -16,6 +16,7 @@
 #define WHITE 5
 #define BLACK 6
 #define YELLOW 7
+#define BLACK_WHITE 8
 
 namespace game :: colors {
     void init_colors();

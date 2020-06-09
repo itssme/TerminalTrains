@@ -43,12 +43,12 @@ int main() {
     game::colors::init_colors();
 
     std::vector<std::string> main_menu_config;
-    main_menu_config.emplace_back("Create new Line");
+    main_menu_config.emplace_back("Create new Track");
     main_menu_config.emplace_back("City Settings");
-    main_menu_config.emplace_back("Line: ");
+    main_menu_config.emplace_back("Track: ");
 
     std::vector<std::string> description;
-    description.emplace_back("Hello this is a very long text so this description is very long and does not fit into a line");
+    description.emplace_back("Hello this is a very long text so this description is very long and does not fit into a track");
     description.emplace_back("");
     description.emplace_back("Exit the Menu");
 
