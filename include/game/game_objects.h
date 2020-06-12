@@ -60,8 +60,8 @@ namespace game::gameobjects {
     // which is part of a Train
     class Train : public GameObject {
     private:
-        std::vector<Wagon> wagons;
         int position_in_line;
+        std::vector<Wagon> wagons;
         std::vector<std::tuple<int, int>>* current_line;
     public:
         Train();
@@ -78,6 +78,7 @@ namespace game::gameobjects {
     class Track : public GameObject {
     private:
         int track_name_position{0};
+        bool track_name_reversed{false};
         std::string track_name{""};
         Train* arrived_train = nullptr;
         std::vector<std::tuple<int, int>> track;
@@ -100,18 +101,25 @@ namespace game::gameobjects {
     // from City to City
     class City : public GameObject {
     private:
-        std::vector<Track> outgoing_connections;
-        std::vector<std::tuple<City, Track>> incoming_connections;
-        std::vector<Train> trains_at_city;
+        std::vector<Track> incoming_connections;
+        std::vector<std::tuple<City*, Track*>> outgoing_connections;
         WINDOW* city_window;
         std::string name;
     public:
         City(WINDOW* parent_window, std::string name, int pos_height, int pos_width, int size);
         void tick();
         void draw(WINDOW* window);
-        void add_incoming_track(const Track &track);
-        void add_outgoing_track(const City &from, const Track &track);
+        void add_incoming_track(Track track);
+        void add_outgoing_track(City* to, Track* track);
         bool is_point_within_city(int pos_height, int pos_width);
+    };
+
+    // according to a Line
+    class Line {
+    private:
+        std::vector<City*> line;
+        std::vector<Track*> route;
+        std::vector<Train*> trains;
     };
 
     // on a huge map

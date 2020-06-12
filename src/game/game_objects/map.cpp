@@ -47,6 +47,6 @@ game::gameobjects::City* game::gameobjects::Map::get_city_at(int pos_height, int
 }
 
 void game::gameobjects::Map::add_track(City* from, City* to, Track* new_track) {
-    from->add_outgoing_track(*to, *new_track);
+    from->add_outgoing_track(to, new_track);
     to->add_incoming_track(*new_track);
 }

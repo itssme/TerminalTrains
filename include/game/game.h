@@ -22,6 +22,10 @@
 #define CURSOR_STATE_NONE 0
 #define CURSOR_STATE_LINE 1
 
+namespace game::menu {
+    class Menu;
+}
+
 namespace game {
 
     struct LineBuilder {

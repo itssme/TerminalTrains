@@ -210,6 +210,10 @@ void game::Game::draw_all() {
     draw_mutex.unlock();
 }
 
+void game::Game::add_train(game::gameobjects::Train train) {
+    this->trains.emplace_back(train);
+}
+
 game::LineBuilder::LineBuilder() {
     this->from = nullptr;
     this->to = nullptr;

@@ -19,23 +19,23 @@ void game::gameobjects::City::draw(WINDOW* window) {
     touchwin(this->city_window);
     wrefresh(this->city_window);
 
-    for (auto & line : this->outgoing_connections) {
+    for (auto & line : this->incoming_connections) {
         line.draw(window);
     }
 }
 
 void game::gameobjects::City::tick() {
-    for (auto & line : this->outgoing_connections) {
+    for (auto & line : this->incoming_connections) {
         line.tick();
     }
 }
 
-void game::gameobjects::City::add_incoming_track(const gameobjects::Track &track) {
-    this->outgoing_connections.emplace_back(track);
+void game::gameobjects::City::add_incoming_track(gameobjects::Track track) {
+    this->incoming_connections.emplace_back(track);
 }
 
-void game::gameobjects::City::add_outgoing_track(const gameobjects::City &from, const gameobjects::Track &track) {
-    this->incoming_connections.emplace_back(std::tuple<gameobjects::City, gameobjects::Track>(from, track));
+void game::gameobjects::City::add_outgoing_track(gameobjects::City* to, gameobjects::Track* track) {
+    this->outgoing_connections.emplace_back(std::tuple<gameobjects::City*, gameobjects::Track*>(to, track));
 }
 
 bool game::gameobjects::City::is_point_within_city(int pos_height, int pos_width) {

@@ -21,14 +21,6 @@ namespace game {
 
 namespace game :: menu {
 
-    /*
-    struct Option {
-        const std::string name;
-        const std::string description;
-        Option(std::string name, std::string description) : name(std::move(name)), description(std::move(description)) {}
-    };
-     */
-
     class Menu {
     protected:
         int result{-1};
@@ -85,9 +77,7 @@ namespace game :: menu {
             add_option("Vectron", "Also very gud train and very strong but not so fast");
             add_option("Exit", "");
         }
-        int loop(WINDOW* parent_window, std::mutex* draw_mutex) override {
-            return Menu::loop(parent_window, draw_mutex);
-        }
+        int loop(WINDOW* parent_window, std::mutex* draw_mutex) override;
     };
 
     class EditTrain : public Menu {
@@ -99,9 +89,7 @@ namespace game :: menu {
             this->title = "Edit Train";
             add_option("Exit", "");
         }
-        int loop(WINDOW* parent_window, std::mutex* draw_mutex) override {
-            return Menu::loop(parent_window, draw_mutex);
-        }
+        int loop(WINDOW* parent_window, std::mutex* draw_mutex) override;
     };
 
     class TrainMenu : public Menu {
@@ -118,17 +106,7 @@ namespace game :: menu {
             submenus.emplace_back(BuyTrain(game));
             submenus.emplace_back(EditTrain(game));
         }
-        int loop(WINDOW* parent_window, std::mutex* draw_mutex) override {
-            switch (Menu::loop(parent_window, draw_mutex)) {
-                case 0:
-                    run_subwin(new BuyTrain(this->game), parent_window, draw_mutex);
-                    break;
-                case 1:
-                    run_subwin(new EditTrain(this->game), parent_window, draw_mutex);
-                    break;
-            }
-            return -1;
-        }
+        int loop(WINDOW* parent_window, std::mutex* draw_mutex) override;
     };
 
     class GameMenu : public Menu {

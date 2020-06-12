@@ -32,8 +32,8 @@ void game::gameobjects::Track::draw(WINDOW* window) {
 
     if (track_name_position && ! track_name.empty()) {
         const char* name = this->track_name.c_str();
-        for (unsigned long int i = abs(track_name_position); i < abs(track_name_position) + track_name.size(); ++i) {
-            mvwaddch(window, std::get<0>(track.at(i % track.size())), std::get<1>(track.at(i % track.size())), *(name + sizeof(char) * (i - abs(track_name_position))));
+        for (unsigned long int i = track_name_position; i < track_name_position + track_name.size(); ++i) {
+            mvwaddch(window, std::get<0>(track.at(i % track.size())), std::get<1>(track.at(i % track.size())), *(name + sizeof(char) * (i - track_name_position)));
         }
     }
 
@@ -83,7 +83,7 @@ void game::gameobjects::Track::remove_last_point() {
 
 std::string game::gameobjects::Track::get_track_name() {
     std::string return_str{this->track_name};
-    if (this->track_name_position < 0) {
+    if (this->track_name_reversed) {
         std::reverse(return_str.begin(), return_str.end());
     }
     return return_str;
@@ -97,30 +97,37 @@ void game::gameobjects::Track::rename_track(std::string new_track_name) {
         return;
     }
 
-    for (int i = 1; i < static_cast<int>(this->track.size()) - static_cast<int>(this->track_name.length()) - 1; ++i) {
-        int desired_height{std::get<0>(this->track.at(i))};
-        bool found_pos{true};
+    {
+        int i{1};
+        while (i < static_cast<int>(this->track.size()) - static_cast<int>(this->track_name.length()) - 1) {
+            int desired_height{std::get<0>(this->track.at(i))};
+            bool found_pos{true};
 
-        for (unsigned long int j = 0; j < this->track_name.length(); ++j) {
-            if (desired_height != std::get<0>(this->track.at(i + j))) {
-                found_pos = false;
+            for (unsigned long int j = 1; j < this->track_name.length(); ++j) {
+                if (desired_height != std::get<0>(this->track.at(i + j))) {
+                    found_pos = false;
+                    i = i + j;
+                    break;
+                }
+            }
+
+            if (found_pos) {
+                this->track_name_position = i + 1;
+                break;
             }
         }
+    }
 
-        if (found_pos) {
-            this->track_name_position = i + 1;
+    this->track_name_reversed = true;
+    for (unsigned long int i = 1; i < this->track_name.length(); ++i) {
+        if (std::get<1>(this->track.at((this->track_name_position + i - 1) % this->track.size())) <
+                std::get<1>(this->track.at((this->track_name_position + i) % this->track.size()))) {
+            this->track_name_reversed = false;
             break;
         }
     }
 
-    bool right_to_left{true};
-    for (unsigned long int i = 1; i < this->track_name.length(); ++i) {
-        if (std::get<1>(this->track.at(this->track_name_position + i - 1)) < std::get<1>(this->track.at(this->track_name_position + i))) {
-            right_to_left = false;
-        }
-    }
-
-    if (right_to_left) {
+    if (this->track_name_reversed) {
         std::reverse(this->track_name.begin(), this->track_name.end());
     }
 }
