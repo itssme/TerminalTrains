@@ -12,6 +12,8 @@
 #include <vector>
 #include <ncurses.h>
 
+#include "types.h"
+
 
 namespace game :: menu :: curses {
     /*!
@@ -142,7 +144,7 @@ namespace game :: menu :: curses {
             for (auto ch: this->text) {
                 waddch(this->text_window, ch);
             }
-            for (unsigned int i = 0; i < this->length - this->text.length(); ++i) {
+            for (uint i = 0; i < this->length - this->text.length(); ++i) {
                 waddch(this->text_window, ' ');
             }
         }

@@ -8,8 +8,8 @@
 
 #include "game/game_objects.h"
 
-game::gameobjects::City::City(WINDOW* parent_window, std::string name, int pos_height, int pos_width,
-                        int size) : GameObject(pos_height, pos_width, size, size*2), name(std::move(name)) {
+game::gameobjects::City::City(WINDOW* parent_window, std::string name, uint pos_height, uint pos_width,
+                              uint size) : GameObject(pos_height, pos_width, size, size*2), name(std::move(name)) {
     this->city_window = derwin(parent_window, height, width, pos_height, pos_width);
 }
 
@@ -38,7 +38,7 @@ void game::gameobjects::City::add_outgoing_track(gameobjects::City* to, gameobje
     this->outgoing_connections.emplace_back(std::tuple<gameobjects::City*, gameobjects::Track*>(to, track));
 }
 
-bool game::gameobjects::City::is_point_within_city(int pos_height, int pos_width) {
+bool game::gameobjects::City::is_point_within_city(uint pos_height, uint pos_width) {
     return pos_height >= this->pos_height && pos_height < this->pos_height + this->height
             && pos_width >= this->pos_width && pos_width < this->pos_width + this->width;
 }

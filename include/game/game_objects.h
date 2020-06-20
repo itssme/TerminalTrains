@@ -20,18 +20,18 @@ namespace game::gameobjects {
     class GameObject {
     protected:
         // position
-        int pos_height;
-        int pos_width;
+        uint pos_height;
+        uint pos_width;
 
         // size
-        int height;
-        int width;
+        uint height;
+        uint width;
 
         // color
-        unsigned int color{0};
+        uint color{0};
     public:
-        GameObject(int pos_height, int pos_width, int height, int width) : pos_height(pos_height), pos_width(pos_width),
-                                                                         height(height), width(width) {}
+        GameObject(uint pos_height, uint pos_width, uint height, uint width) : pos_height(pos_height), pos_width(pos_width),
+                                                                               height(height), width(width) {}
         void tick() {};
         void draw(WINDOW* window) {};
     };
@@ -49,51 +49,51 @@ namespace game::gameobjects {
         int load;
         CargoType cargo_type;
     public:
-        Wagon(int capacity, CargoType cargo_type);
+        Wagon(uint capacity, CargoType cargo_type);
         void tick();
         void draw(WINDOW* window);
         void load_cargo();
-        void load_cargo(int loading);
+        void load_cargo(uint amount);
         int unload_cargo();
-        int unload_cargo(int unload);
+        int unload_cargo(uint amount);
     };
 
     // which is part of a Train
     class Train : public GameObject {
     private:
-        int position_in_line;
+        uint position_in_line;
         std::vector<Wagon> wagons;
-        std::vector<std::tuple<int, int>>* current_line;
+        std::vector<std::tuple<uint, uint>>* current_line;
     public:
         Train();
         void tick();
         void draw(WINDOW* window);
-        void start_driving_on_line(std::vector<std::tuple<int, int>>* line);
+        void start_driving_on_line(std::vector<std::tuple<uint, uint>>* line);
         bool drive_line();
         void add_cargo();
-        void add_cargo(const int& cargo);
-        std::tuple<CargoType, int> unload_cargo();
+        void add_cargo(const uint& cargo);
+        std::tuple<CargoType, uint> unload_cargo();
     };
 
     // which drives on a Track
     class Track : public GameObject {
     private:
-        int track_name_position{0};
+        uint track_name_position{0};
         bool track_name_reversed{false};
         std::string track_name{""};
         Train* arrived_train = nullptr;
-        std::vector<std::tuple<int, int>> track;
+        std::vector<std::tuple<uint, uint>> track;
         std::vector<Train> trains;
     public:
-        Track(int pos_height, int pos_width);
+        Track(uint pos_height, uint pos_width);
         void tick();
         void draw(WINDOW* window);
-        void add_point(int pos_height, int pos_width);
+        void add_point(uint pos_height, uint pos_width);
         void remove_last_point();
         void add_train(Train train);
-        int length();
-        bool is_point_on_track(int pos_height, int pos_width);
-        bool is_point_at_end_of_track(int pos_height, int pos_width);
+        uint length();
+        bool is_point_on_track(uint pos_height, uint pos_width);
+        bool is_point_at_end_of_track(uint pos_height, uint pos_width);
         void rename_track(std::string new_track_name);
         std::string get_track_name();
         Train* arrived();
@@ -107,12 +107,12 @@ namespace game::gameobjects {
         WINDOW* city_window;
         std::string name;
     public:
-        City(WINDOW* parent_window, std::string name, int pos_height, int pos_width, int size);
+        City(WINDOW* parent_window, std::string name, uint pos_height, uint pos_width, uint size);
         void tick();
         void draw(WINDOW* window);
         void add_incoming_track(Track track);
         void add_outgoing_track(City* to, Track* track);
-        bool is_point_within_city(int pos_height, int pos_width);
+        bool is_point_within_city(uint pos_height, uint pos_width);
     };
 
     // according to a Line
@@ -129,12 +129,12 @@ namespace game::gameobjects {
         std::vector<City> cities;
         WINDOW* map_window;
     public:
-        Map(WINDOW* parent_window, int height, int width);
+        Map(WINDOW* parent_window, uint height, uint width);
         void tick();
         void draw(WINDOW* window);
         void add_city(const City& city);
-        bool is_city_at(int pos_height, int pos_width);
-        City* get_city_at(int pos_height, int pos_width);
+        bool is_city_at(uint pos_height, uint pos_width);
+        City* get_city_at(uint pos_height, uint pos_width);
         void add_track(City* from, City* to, Track* new_track);
     };
 }

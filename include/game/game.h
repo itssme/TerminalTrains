@@ -11,6 +11,7 @@
 #include "game_objects.h"
 #include "menus.h"
 #include "colors.h"
+#include "types.h"
 
 #define TICK 50
 
@@ -47,11 +48,11 @@ namespace game {
 
     class Game {
     private:
-        int cursor_height;
-        int cursor_width;
-        int cursor_color;
-        int cursor_state;
-        int menu_type;
+        uint cursor_height;
+        uint cursor_width;
+        uint cursor_color;
+        uint cursor_state;
+        uint menu_type;
         bool running{true};
         std::mutex draw_mutex{};
         std::vector<gameobjects::Train> trains;

@@ -6,7 +6,7 @@
 
 #include "game/game_objects.h"
 
-game::gameobjects::Track::Track(int pos_height, int pos_width) : GameObject(pos_height, pos_width, 0, 0) {
+game::gameobjects::Track::Track(uint pos_height, uint pos_width) : GameObject(pos_height, pos_width, 0, 0) {
     add_point(pos_height, pos_width);
     color = COLOR_PAIR(BLACK_WHITE);
 }
@@ -41,7 +41,7 @@ void game::gameobjects::Track::draw(WINDOW* window) {
     }
 }
 
-void game::gameobjects::Track::add_point(int pos_height, int pos_width) {
+void game::gameobjects::Track::add_point(uint pos_height, uint pos_width) {
     this->track.emplace_back(std::make_tuple(pos_height, pos_width));
 }
 
@@ -54,18 +54,18 @@ game::gameobjects::Train* game::gameobjects::Track::arrived() {
     return arrived_train;
 }
 
-int game::gameobjects::Track::length() {
+uint game::gameobjects::Track::length() {
     return this->track.size();
 }
 
-bool game::gameobjects::Track::is_point_on_track(int pos_height, int pos_width) {
+bool game::gameobjects::Track::is_point_on_track(uint pos_height, uint pos_width) {
     if (track.empty()) {
         return false;
     }
     return std::find(track.begin(), track.end(), std::make_tuple(pos_height, pos_width)) != track.end();
 }
 
-bool game::gameobjects::Track::is_point_at_end_of_track(int pos_height, int pos_width) {
+bool game::gameobjects::Track::is_point_at_end_of_track(uint pos_height, uint pos_width) {
     if (track.empty()) {
         return false;
     }
@@ -97,7 +97,7 @@ void game::gameobjects::Track::rename_track(std::string new_track_name) {
     {
         int i{1};
         while (i < static_cast<int>(this->track.size()) - static_cast<int>(this->track_name.length()) - 1) {
-            int desired_height{std::get<0>(this->track.at(i))};
+            uint desired_height{std::get<0>(this->track.at(i))};
             bool found_pos{true};
 
             for (unsigned long int j = 1; j < this->track_name.length(); ++j) {
@@ -116,10 +116,12 @@ void game::gameobjects::Track::rename_track(std::string new_track_name) {
     }
 
     this->track_name_reversed = true;
-    for (unsigned long int i = 1; i < this->track_name.length(); ++i) {
-        if (std::get<1>(this->track.at((this->track_name_position + i - 1) % this->track.size())) <
-            std::get<1>(this->track.at((this->track_name_position + i) % this->track.size()))) {
+
+    for (unsigned long int i = this->track_name_position; i < this->track_name_position + this->track_name.length(); i++) {
+        if (std::get<1>(this->track.at(i - 1)) <
+            std::get<1>(this->track.at(i))) {
             this->track_name_reversed = false;
+            this->track_name_position -= 1;
             break;
         }
     }

@@ -29,7 +29,7 @@ bool game::gameobjects::Train::drive_line() {
     return false;
 }
 
-void game::gameobjects::Train::start_driving_on_line(std::vector<std::tuple<int, int>>* line) {
+void game::gameobjects::Train::start_driving_on_line(std::vector<std::tuple<uint, uint>>* line) {
     this->current_line = line;
     this->position_in_line = line->size();
 }
@@ -38,10 +38,10 @@ void game::gameobjects::Train::add_cargo() {
 
 }
 
-void game::gameobjects::Train::add_cargo(const int &cargo) {
+void game::gameobjects::Train::add_cargo(const uint &cargo) {
 
 }
 
-std::tuple<game::gameobjects::CargoType, int> game::gameobjects::Train::unload_cargo() {
-    return std::tuple<game::gameobjects::CargoType, int>();
+std::tuple<game::gameobjects::CargoType, uint> game::gameobjects::Train::unload_cargo() {
+    return std::tuple<game::gameobjects::CargoType, uint>();
 }

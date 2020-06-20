@@ -6,7 +6,7 @@
 
 #include "game/game_objects.h"
 
-game::gameobjects::Wagon::Wagon(int capacity, gameobjects::CargoType cargo_type)
+game::gameobjects::Wagon::Wagon(uint capacity, gameobjects::CargoType cargo_type)
         : GameObject(0, 0, 1, 2), capacity(capacity), load(0),
           cargo_type(cargo_type) {}
 
@@ -22,7 +22,7 @@ void game::gameobjects::Wagon::load_cargo() {
 
 }
 
-void game::gameobjects::Wagon::load_cargo(int loading) {
+void game::gameobjects::Wagon::load_cargo(uint amount) {
 
 }
 
@@ -30,6 +30,6 @@ int game::gameobjects::Wagon::unload_cargo() {
     return 0;
 }
 
-int game::gameobjects::Wagon::unload_cargo(int unload) {
+int game::gameobjects::Wagon::unload_cargo(uint amount) {
     return 0;
 }

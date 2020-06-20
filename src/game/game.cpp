@@ -55,7 +55,7 @@ void game::Game::game_loop() {
                     if (cursor_height - 1)
                         delta_height--;
                 } else if (ch == KEY_DOWN && delta_height == 0) {
-                    if (cursor_height < LINES - 2)
+                    if (static_cast<int>(cursor_height) < LINES - 2)
                         delta_height++;
                 }
 
@@ -63,7 +63,7 @@ void game::Game::game_loop() {
                     if (cursor_width - 1)
                         delta_width--;
                 } else if (ch == KEY_RIGHT && delta_width == 0) {
-                    if (cursor_width < COLS - 2)
+                    if (static_cast<int>(cursor_width) < COLS - 2)
                         delta_width++;
                 }
 
