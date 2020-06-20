@@ -28,6 +28,16 @@ namespace game::menu {
 
 namespace game {
 
+    namespace containers {
+        class Trains {
+        private:
+            std::vector<gameobjects::Train> trains;
+        public:
+            void add_train(gameobjects::Train train) {trains.emplace_back(train);};
+            const std::vector<gameobjects::Train>& get_trains() {return trains;};
+        };
+    }
+
     struct LineBuilder {
         gameobjects::City* from;
         gameobjects::City* to;

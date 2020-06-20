@@ -12,6 +12,7 @@
 #include <spdlog/spdlog.h>
 #include <tuple>
 #include <vector>
+#include <utility>
 #include <ncurses.h>
 
 namespace game::gameobjects {

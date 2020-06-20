@@ -1,7 +1,3 @@
-#include <utility>
-
-#include <utility>
-
 /*!
  * @author: Joel Klimont
  * @filename: track.cpp
@@ -16,8 +12,8 @@ game::gameobjects::Track::Track(int pos_height, int pos_width) : GameObject(pos_
 }
 
 void game::gameobjects::Track::tick() {
-    for (auto & train : trains) {
-        if (! train.drive_line()) {
+    for (auto &train : trains) {
+        if (!train.drive_line()) {
             arrived_train = &train;
         }
     }
@@ -26,20 +22,21 @@ void game::gameobjects::Track::tick() {
 void game::gameobjects::Track::draw(WINDOW* window) {
     wattron(window, color);
 
-    for (auto & point : track) {
+    for (auto &point : track) {
         mvwaddch(window, std::get<0>(point), std::get<1>(point), ' ');
     }
 
-    if (track_name_position && ! track_name.empty()) {
+    if (track_name_position && !track_name.empty()) {
         const char* name = this->track_name.c_str();
         for (unsigned long int i = track_name_position; i < track_name_position + track_name.size(); ++i) {
-            mvwaddch(window, std::get<0>(track.at(i % track.size())), std::get<1>(track.at(i % track.size())), *(name + sizeof(char) * (i - track_name_position)));
+            mvwaddch(window, std::get<0>(track.at(i % track.size())), std::get<1>(track.at(i % track.size())),
+                     *(name + sizeof(char) * (i - track_name_position)));
         }
     }
 
     wattroff(window, color);
 
-    for (auto & train : trains) {
+    for (auto &train : trains) {
         train.draw(window);
     }
 }
@@ -76,7 +73,7 @@ bool game::gameobjects::Track::is_point_at_end_of_track(int pos_height, int pos_
 }
 
 void game::gameobjects::Track::remove_last_point() {
-    if (! track.empty()) {
+    if (!track.empty()) {
         track.pop_back();
     }
 }
@@ -121,7 +118,7 @@ void game::gameobjects::Track::rename_track(std::string new_track_name) {
     this->track_name_reversed = true;
     for (unsigned long int i = 1; i < this->track_name.length(); ++i) {
         if (std::get<1>(this->track.at((this->track_name_position + i - 1) % this->track.size())) <
-                std::get<1>(this->track.at((this->track_name_position + i) % this->track.size()))) {
+            std::get<1>(this->track.at((this->track_name_position + i) % this->track.size()))) {
             this->track_name_reversed = false;
             break;
         }

@@ -12,7 +12,6 @@
 #include <vector>
 #include <ncurses.h>
 
-class Game;
 
 namespace game :: menu :: curses {
     /*!
@@ -403,7 +402,7 @@ namespace game :: menu :: curses {
             werase(this->description_window);
             std::string description = options.at(at_option).get_description();
 
-            if (description != "") {
+            if (! description.empty()) {
                 mvwaddstr(this->description_window, 0, 1, " Description ");
 
                 int line_n{0};

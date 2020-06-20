@@ -357,8 +357,8 @@ public:
     }
     std::vector<std::string> get_text_options() {
         std::vector<std::string> text{};
-        for (int i = 0; i < options_text_input.size(); ++i) {
-            text.emplace_back(options_text_input.at(i).evaluate());
+        for (auto & i : options_text_input) {
+            text.emplace_back(i.evaluate());
         }
         return text;
     }
