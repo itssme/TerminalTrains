@@ -25,10 +25,11 @@ game::Game::Game(WINDOW* parent_window) : parent_window{parent_window}, map(pare
 
 void game::Game::create_menu(const std::vector<std::string> &option_names, const int &input_options,
                              const std::string &title) {
-    this->menu_window = derwin(parent_window, LINES-1, 25, 1, COLS - 26);
-    this->menu = new Menu(this->menu_window, option_names, input_options, title, 1, 1);
-    this->menu_thread = new std::thread([&]{
-        menu->loop(&draw_mutex);
+    this->menu_window = derwin(parent_window, LINES - 1, 25, 1, COLS - 26);
+    this->custom_game_menu = new menu::curses::Menu(this->menu_window, option_names, *(new std::vector<std::string>(option_names.size(), "")),
+                                                    input_options, title);
+    this->menu_thread = new std::thread([&] {
+        custom_game_menu->loop(&draw_mutex);
     });
 }
 
@@ -92,12 +93,12 @@ void game::Game::game_loop() {
                 if (city == nullptr) {
                     if (delta_height != 0 || delta_width != 0) {
                         if (track_builder.new_track->is_point_at_end_of_track(cursor_height + delta_height,
-                                                                            cursor_width + delta_width)) {
+                                                                              cursor_width + delta_width)) {
                             track_builder.new_track->remove_last_point();
                             cursor_height += delta_height;
                             cursor_width += delta_width;
                         } else if (!track_builder.new_track->is_point_on_track(cursor_height + delta_height,
-                                                                             cursor_width + delta_width)) {
+                                                                               cursor_width + delta_width)) {
                             track_builder.new_track->add_point(cursor_height, cursor_width);
                             cursor_height += delta_height;
                             cursor_width += delta_width;
@@ -121,7 +122,7 @@ void game::Game::game_loop() {
             if (enter_pressed && cursor_state == CURSOR_STATE_NONE && menu_type == MENU_NONE) {
                 this->menu_type = MENU_GAME;
                 this->game_menu = new menu::GameMenu(this);
-                this->menu_window = derwin(parent_window, LINES-1, 25, 1, COLS - 26);
+                this->menu_window = derwin(parent_window, LINES - 1, 25, 1, COLS - 26);
                 this->menu_thread = new std::thread([&] {
                     game_menu->loop(menu_window, &draw_mutex);
                 });
@@ -129,14 +130,14 @@ void game::Game::game_loop() {
 
         } else { // evaluate menu if possible
 
-            if (menu != nullptr) {
-                if (menu->can_evaluate()) {
+            if (custom_game_menu != nullptr) {
+                if (custom_game_menu->can_evaluate()) {
                     menu_thread->join();
-                    int menu_choice = menu->evaluate_choice();
-                    std::vector<std::string> menu_text = menu->get_text_options();
+                    int menu_choice = custom_game_menu->evaluate_choice();
+                    const std::vector<std::string> menu_text = custom_game_menu->get_text_options();
                     werase(menu_window);
                     menu_window = nullptr;
-                    menu = nullptr;
+                    custom_game_menu = nullptr;
 
                     if (this->menu_type == MENU_CITY) {
                         menu_type = MENU_NONE;
@@ -173,8 +174,8 @@ void game::Game::game_loop() {
         auto end = std::chrono::steady_clock::now();
 
         try {
-            std::this_thread::sleep_for(std::chrono::milliseconds(TICK)-(end-start));
-        } catch (const std::exception& e) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(TICK) - (end - start));
+        } catch (const std::exception &e) {
             spdlog::info(e.what());
         }
     }
@@ -190,11 +191,11 @@ void game::Game::draw_all() {
 
     map.draw(parent_window);
 
-    box(this->parent_window, 0 , 0);
+    box(this->parent_window, 0, 0);
 
     if (this->menu_window != nullptr) {
-        if (this->menu != nullptr) {
-            this->menu->redraw_all();
+        if (this->custom_game_menu != nullptr) {
+            this->custom_game_menu->redraw_all();
         } else if (this->game_menu != nullptr) {
             this->game_menu->draw(parent_window);
         }

@@ -25,6 +25,9 @@
 
 namespace game::menu {
     class Menu;
+    namespace curses {
+        class Menu;
+    }
 }
 
 namespace game {
@@ -34,8 +37,8 @@ namespace game {
         private:
             std::vector<gameobjects::Train> trains;
         public:
-            void add_train(gameobjects::Train train) {trains.emplace_back(train);};
-            const std::vector<gameobjects::Train>& get_trains() {return trains;};
+            void add_train(gameobjects::Train train) { trains.emplace_back(train); };
+            const std::vector<gameobjects::Train> &get_trains() { return trains; };
         };
     }
 
@@ -58,16 +61,20 @@ namespace game {
         std::vector<gameobjects::Train> trains;
         WINDOW* parent_window;
         WINDOW* menu_window;
-        Menu* menu = nullptr;
+        //Menu* menu = nullptr;
+        menu::curses::Menu* custom_game_menu = nullptr;
         menu::Menu* game_menu = nullptr;
         gameobjects::Map map;
         LineBuilder track_builder;
-        void create_menu(const std::vector<std::string> &option_names, const int &input_options,
-                         const std::string &title);
+        void
+        create_menu(const std::vector<std::string> &option_names,
+                    const int &input_options,
+                    const std::string &title);
         std::thread* menu_thread;
         void draw_cursor();
+
     public:
-        Game(WINDOW *parent_window);
+        Game(WINDOW* parent_window);
         void tick_all();
         void draw_all();
         void game_loop();

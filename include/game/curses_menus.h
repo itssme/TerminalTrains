@@ -1,4 +1,4 @@
-/*! 
+/*!
  * @author: Joel Klimont
  * @filename: curses_utilsV2.h
  * @date: 02/06/20
@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <ncurses.h>
+#include <utility>
 
 #include "types.h"
 
@@ -21,15 +22,13 @@ namespace game :: menu :: curses {
     */
     struct Option {
     public:
-        std::string title;
-        std::string description;
+        const std::string title;
+        const std::string description;
         WINDOW *window;
 
-        Option(WINDOW *parent_window, const std::string &title, const std::string &description, int length, int begin_y,
-               int begin_x) {
+        Option(WINDOW *parent_window, std::string title, std::string description, int length, int begin_y,
+               int begin_x) : title(std::move(title)), description(std::move(description)) {
             this->window = derwin(parent_window, 1, length - 1, begin_y, begin_x);
-            this->title = title;
-            this->description = description;
             waddstr(this->window, this->title.c_str());
         }
 
@@ -75,7 +74,7 @@ namespace game :: menu :: curses {
          * Returns the description such that it can be drawn in different WINDOW defined by the menu
          * @return The description of this option
          */
-        std::string get_description() {
+        const std::string get_description() {
             return this->description;
         }
 
@@ -91,26 +90,22 @@ namespace game :: menu :: curses {
      * An option which can be used to get text input from the user
      */
     struct OptionTextInput {
-        std::string title;
-        std::string description;
+        const std::string title;
+        const std::string description;
         std::string text;
         int length;
-        int input_size;
+        unsigned long int input_size; // TODO: remove and use length
         bool selected{false};
         WINDOW* window;
         WINDOW* text_window;
-        OptionTextInput(WINDOW* parent_window, const std::string &title, const std::string &description, int begin_y, int input_size) {
-            this->length = static_cast<int>(title.size() + input_size + 2);
+        OptionTextInput(WINDOW* parent_window, std::string title, std::string description, int begin_y, unsigned long int input_size) : title(std::move(title)),description(std::move(description)) {
+            this->length = static_cast<int>(this->title.size() + input_size + 2);
             this->window = derwin(parent_window, 1, this->length, begin_y, parent_window->_maxx/2 - this->length/2);
-            this->title = title;
-            this->description = description;
+            this->text_window = derwin(this->window, 1, input_size, 0, static_cast<int>(this->title.size() + 1));
             waddstr(this->window, (this->title + " ").c_str());
-            this->text_window = derwin(this->window, 1, input_size, 0, static_cast<int>(title.size() + 1));
+            this->input_size = input_size - 1;
             wattron(this->text_window, A_UNDERLINE);
-            for (int i = 0; i < input_size; ++i) {
-                waddch(this->text_window, ' ');
-            }
-            this->input_size = input_size;
+            this->redraw_option();
         }
         /*!
          * Typed in chars will be interpreted here.
@@ -122,7 +117,7 @@ namespace game :: menu :: curses {
                     if (this->text.length()) {
                         this->text.pop_back();
                     }
-                } else {
+                } else if (this->text.length() < this->input_size){
                     this->text += static_cast<char>(ch);
                 }
                 this->redraw_subwin();
@@ -132,7 +127,7 @@ namespace game :: menu :: curses {
          * Return the text the user typed in.
          * @return user input as string
          */
-        std::string evaluate() {
+        const std::string evaluate() {
             return this->text;
         }
         /*!
@@ -198,7 +193,7 @@ namespace game :: menu :: curses {
          * Returns the description such that it can be drawn in different WINDOW defined by the menu
          * @return The description of this option
          */
-        std::string get_description() {
+        const std::string get_description() {
             return this->description;
         }
         /*!
@@ -322,6 +317,7 @@ namespace game :: menu :: curses {
             } else {
                 this->options_text_input.at(at_option - options.size()).select();
             }
+            spdlog::info("up now at option: " + std::to_string(at_option));
         }
 
         /*!
@@ -344,6 +340,7 @@ namespace game :: menu :: curses {
             } else {
                 this->options_text_input.at(at_option - options.size()).select();
             }
+            spdlog::info("down now at option: " + std::to_string(at_option));
         }
 
         /*!
@@ -376,6 +373,14 @@ namespace game :: menu :: curses {
             }
         }
 
+        const std::vector<std::string> get_text_options() {
+            std::vector<std::string> text{};
+            for (auto & i : options_text_input) {
+                text.emplace_back(i.evaluate());
+            }
+            return text;
+        }
+
         /*!
          * Return the selected option from the user
          * @return int of the selected option
@@ -402,7 +407,12 @@ namespace game :: menu :: curses {
 
         void draw_description() {
             werase(this->description_window);
-            std::string description = options.at(at_option).get_description();
+            std::string description{};
+            if (at_option < this->options_text_input.size()) {
+                description = this->options_text_input.at(at_option).get_description();
+            } else {
+                description = this->options.at(at_option - options_text_input.size()).get_description();
+            }
 
             if (! description.empty()) {
                 mvwaddstr(this->description_window, 0, 1, " Description ");
@@ -428,16 +438,18 @@ namespace game :: menu :: curses {
         }
 
         void redraw_all() {
-            box(this->window, 0, 0);
-            mvwaddstr(this->window, 0, 1, this->title.c_str());
-            draw_description();
-            for (auto op: options) {
-                op.redraw_subwin();
+            if (! has_decided) {
+                box(this->window, 0, 0);
+                mvwaddstr(this->window, 0, 1, this->title.c_str());
+                draw_description();
+                for (auto op: options) {
+                    op.redraw_subwin();
+                }
+                for (auto op: options_text_input) {
+                    op.redraw_subwin();
+                }
+                refresh_all();
             }
-            for (auto op: options_text_input) {
-                op.redraw_subwin();
-            }
-            refresh_all();
         }
 
         /*!
