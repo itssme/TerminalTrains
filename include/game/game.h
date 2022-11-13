@@ -12,6 +12,7 @@
 #include "menus.h"
 #include "colors.h"
 #include "types.h"
+#include <thread>
 
 #define TICK 50
 
